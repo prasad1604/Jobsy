@@ -1,14 +1,13 @@
 package com.prasad.Jobsy.config;
 
-
 import java.util.List;
-
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true) // Enable method-level security
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -39,32 +39,77 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login","/register","/send-reset-otp","/reset-password","/logout")
-                .permitAll().anyRequest().authenticated())
+                // Public endpoints (no authentication required)
+                .requestMatchers(
+                    "/login", 
+                    "/register", 
+                    "/send-reset-otp", 
+                    "/reset-password", 
+                    "/logout",
+                    "/api/roles/all", // Allow viewing available roles
+                    "/api/jobs", // Allow browsing jobs without auth
+                    "/api/jobs/{id}",
+                    "/api/jobs/job-id/{jobId}",
+                    "/api/jobs/status/{status}",
+                    "/api/jobs/search",
+                    "/api/jobs/category/{category}"
+                ).permitAll()
+                
+                // Role management endpoints (authenticated users only)
+                .requestMatchers("/api/roles/**").authenticated()
+                
+                // Job management endpoints
+                .requestMatchers("/api/jobs/my-jobs").authenticated()
+                .requestMatchers("/api/jobs/{id}").authenticated()
+                .requestMatchers("/api/jobs/{id}/status").authenticated()
+                
+                // Proposal endpoints (authenticated users only)
+                .requestMatchers("/api/proposals/**").authenticated()
+                
+                // Message endpoints (authenticated users only)
+                .requestMatchers("/api/messages/**").authenticated()
+                
+                // Contract endpoints (authenticated users only)
+                .requestMatchers("/api/contracts/**").authenticated()
+                
+                // Payment endpoints (authenticated users only)
+                .requestMatchers("/api/payments/**").authenticated()
+                
+                // Profile endpoints (authenticated users only)
+                .requestMatchers("/profile/**").authenticated()
+                
+                // Any other request must be authenticated
+                .anyRequest().authenticated()
+            )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .logout(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint));
 
-    return http.build();
-}
+        return http.build();
+    }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public CorsFilter corsFilter(){
+    public CorsFilter corsFilter() {
         return new CorsFilter(corsConfigurationSource());
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization","Content-Type"));
+        config.setAllowedOrigins(List.of(
+            "http://localhost:5173", 
+            "http://localhost:3000", 
+            "http://localhost:8080"
+        )); // Add more origins as needed
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // Cache preflight response for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -72,7 +117,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }

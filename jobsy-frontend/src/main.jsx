@@ -8,9 +8,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { AppContextProvider } from './context/AppContext.jsx';
 
 createRoot(document.getElementById('root')).render(
-    <BrowserRouter>
-      <AppContextProvider>
-        <App />
-      </AppContextProvider>
-    </BrowserRouter>
+  <BrowserRouter>
+    <AppContextProvider>
+      <App />
+    </AppContextProvider>
+  </BrowserRouter>
 );

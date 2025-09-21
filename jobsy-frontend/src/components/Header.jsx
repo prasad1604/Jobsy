@@ -1,28 +1,54 @@
-import { useContext } from "react";
-import { assets } from "../assets/assets";
-import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-    const {userData} = useContext(AppContext);
+    const navigate = useNavigate();
+
     return (
-        <div className="text-center d-flex flex-column align-items-center justify-content-center py-5 px-3" style = {{minHeight : "80vh"}}>
-            <img src={assets.header} alt="header" width={120} className="mb-4" />
-
-            <h5 className="fw-semibold">
-                Hey {userData ? userData.name : "Developer"} <span role = "img" aria-label="wave">👋</span>
-            </h5>
-
-            <h1 className="fw-bold display-5 mb-3">Welcome to Jobsy</h1>
-
-            <p className="text-muted fs-5 mb-4" style={{maxWidth : "500px"}}>
-                Your one-stop solution to find your dream job and kickstart your freelancing career in tech!
-            </p>
-
-            <button className="btn btn-outline-dark rounded-pill px-4 py-2">
-                Get Started
-            </button>
+        <div className="bg-primary text-white py-5">
+            <div className="container">
+                <div className="row align-items-center">
+                    <div className="col-lg-6">
+                        <h1 className="display-4 fw-bold mb-3">
+                            Find Your Perfect Job
+                        </h1>
+                        <p className="lead mb-4">
+                            Your one-stop solution to find your dream job and kickstart your freelancing career in tech!
+                        </p>
+                        <div className="d-flex gap-3">
+                            <button 
+                                className="btn btn-light btn-lg"
+                                onClick={() => navigate('/find-work')}
+                            >
+                                Find Work
+                            </button>
+                            <button 
+                                className="btn btn-outline-light btn-lg"
+                                onClick={() => navigate('/find-talent')}
+                            >
+                                Hire Talent
+                            </button>
+                        </div>
+                    </div>
+                    <div className="col-lg-6">
+                        <div className="row text-center g-4">
+                            <div className="col-4">
+                                <h3 className="fw-bold">10K+</h3>
+                                <p>Jobs Posted</p>
+                            </div>
+                            <div className="col-4">
+                                <h3 className="fw-bold">5K+</h3>
+                                <p>Freelancers</p>
+                            </div>
+                            <div className="col-4">
+                                <h3 className="fw-bold">98%</h3>
+                                <p>Satisfaction Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    )
-}
+    );
+};
 
 export default Header;

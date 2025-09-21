@@ -1,5 +1,4 @@
-import { useContext, useEffect, useRef,useState } from "react";
-import { assets } from "../assets/assets";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
@@ -8,111 +7,115 @@ import axios from "axios";
 const EmailVerify = () => {
     const inputRef = useRef([]);
     const [loading, setLoading] = useState(false);
-    const {getUserData,isLoggedIn,userData,backendURL}= useContext(AppContext);
+    const { getUserData, isLoggedIn, userData, backendURL } = useContext(AppContext);
     const navigate = useNavigate();
 
     const handleChange = (e, index) => {
         const value = e.target.value.replace(/\D/, "");
         e.target.value = value;
-
-        if(value && index < 5){
+        if (value && index < 5) {
             inputRef.current[index + 1].focus();
-        }
-        else if(!value && index > 0){
+        } else if (!value && index > 0) {
             inputRef.current[index - 1].focus();
         }
-    }
+    };
 
     const handleKeyDown = (e, index) => {
-        if(e.key === "Backspace" && !e.target.value && index > 0){
+        if (e.key === "Backspace" && !e.target.value && index > 0) {
             inputRef.current[index - 1].focus();
         }
-    }
+    };
 
     const handlePaste = (e) => {
         e.preventDefault();
-        const paste = e.clipboardData.getData("text").slice(0,6).split("");
+        const paste = e.clipboardData.getData("text").slice(0, 6).split("");
         paste.forEach((digit, i) => {
-            if(inputRef.current[i]){
+            if (inputRef.current[i]) {
                 inputRef.current[i].value = digit;
             }
         });
-
         const next = paste.length < 6 ? paste.length : 5;
         inputRef.current[next].focus();
-    }
+    };
 
     const handleVerify = async () => {
-        const otp = inputRef.current = inputRef.current.map(input => input.value).join("");
-        if(otp.length != 6){
+        const otpValue = inputRef.current.map(input => input.value).join("");
+        if (otpValue.length !== 6) {
             toast.error("Please enter all 6 digits of the OTP");
             return;
         }
-
         setLoading(true);
-        try{
-            const response = await axios.post(backendURL + "/verify-otp", {otp});
-            if(response.status === 200){
+        try {
+            const response = await axios.post(backendURL + "/verify-otp", { otp: otpValue });
+            if (response.status === 200) {
                 toast.success("OTP verified successfully");
                 getUserData();
                 navigate("/");
-            }
-            else{
+            } else {
                 toast.error("Invalid OTP");
             }
-        }
-        catch(error){
-            toast.error("Failed to verify OTP. Please try again."+error);
-        }
-        finally{
+        } catch (error) {
+            toast.error("Failed to verify OTP. Please try again." + error);
+        } finally {
             setLoading(false);
         }
-
-    }
+    };
 
     useEffect(() => {
-        isLoggedIn && userData && userData.isAccountVerified && navigate("/");
-    },[isLoggedIn,userData]);
+        if (isLoggedIn && userData && userData.isAccountVerified) {
+            navigate("/");
+        }
+    }, [isLoggedIn, userData, navigate]);
 
     return (
-        <div className="email-verify-container d-flex align-items-center justify-content-center vh-100 position-relative"
-        style={{ background : "linear-gradient(90deg, #6a5aff, #8268f9)", borderRadius : 0 }}>
+        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+            <div className="row w-100">
+                <div className="col-md-6 col-lg-4 mx-auto">
+                    <div className="card shadow">
+                        <div className="card-body p-4">
+                            <div className="text-center mb-4">
+                                <h3>Email Verification</h3>
+                                <p className="text-muted">Enter the 6 digit OTP sent to your email address</p>
+                            </div>
 
+                            <div className="mb-3">
+                                <div className="d-flex gap-2 justify-content-center">
+                                    {Array.from({ length: 6 }, (_, index) => (
+                                        <input
+                                            key={index}
+                                            ref={(el) => (inputRef.current[index] = el)}
+                                            type="text"
+                                            className="form-control text-center"
+                                            style={{ width: '50px', height: '50px' }}
+                                            maxLength="1"
+                                            onChange={(e) => handleChange(e, index)}
+                                            onKeyDown={(e) => handleKeyDown(e, index)}
+                                            onPaste={handlePaste}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
 
-        <Link to="/" className="position-absolute top-0 start-0 p-4 d-flex align-items-center gap-2 text-decoration-none">
-        <img src={assets.logo_home} alt="logo" height={32} width={32}/>
-        <span className="fs-4 fw-semibold text-light">Jobsy</span>
-        </Link>
+                            <button 
+                                type="button"
+                                className="btn btn-primary w-100"
+                                onClick={handleVerify}
+                                disabled={loading}
+                            >
+                                {loading ? 'Verifying...' : 'Verify Email'}
+                            </button>
 
-        <div className="p-5 rounded-4 shadow bg-white" style={{width:"400px"}}>
-            <h4 className="text-center fw-bold mb-2">Email Verify OTP</h4>
-            <p className="text-center mb-4">
-                Enter the 6 digit OTP sent to your email address
-            </p>
-
-            <div className="d-flex justify-content-between gap-2 mb-4 text-center text-white-50 mb-2">
-                {[...Array(6)].map((_, i) =>(
-                    <input 
-                    key={i}
-                    type="text"
-                    maxLength={1}
-                    className="form-control text-center fs-4 otp-input"
-                    ref= {(el) => (inputRef.current[i] = el)}
-                    onChange={(e) => handleChange(e, i)}
-                    onKeyDown={(e) => handleKeyDown(e, i)}
-                    onPaste={handlePaste}
-                    />
-                ))}
+                            <div className="text-center mt-3">
+                                <Link to="/" className="text-decoration-none">
+                                    Back to Home
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <button className="btn btn-primary w-100 fw-semibold" disabled={loading} onClick={handleVerify}>
-                {loading ? "Verifying..." : "Verify email"}
-            </button>
-
         </div>
-
-        </div>
-    )
-}
+    );
+};
 
 export default EmailVerify;

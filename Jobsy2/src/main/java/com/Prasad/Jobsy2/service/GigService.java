@@ -143,6 +143,7 @@ public class GigService {
     }
 
     // Convert Entity → DTO
+    // Convert Entity → DTO
     public GigDTO toDTO(GigEntity gigEntity) {
 
         return GigDTO.builder()
@@ -156,6 +157,10 @@ public class GigService {
                 .freelancerName(gigEntity.getFreelancer().getFullName())
                 .freelancerProfileImage(
                         gigEntity.getFreelancer().getProfileImageUrl())
+
+                // ✅ ADD THIS LINE (CRITICAL FIX)
+                .userId(gigEntity.getFreelancer().getId())
+
                 .build();
     }
 }

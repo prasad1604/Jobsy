@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/context";
 
 const Navbar = () => {
-
   const navigate = useNavigate();
   const { user, setUser, clearUser } = useContext(AppContext);
 
@@ -17,7 +16,7 @@ const Navbar = () => {
   };
 
   const handleSwitchRole = () => {
-    const newRole = user.activeRole === "FREELANCER" ? "CLIENT" : "FREELANCER";
+    const newRole = user.activeRole === "FREELANCER" ? "HIRER" : "FREELANCER";
 
     const updatedUser = { ...user, activeRole: newRole };
 
@@ -41,7 +40,6 @@ const Navbar = () => {
       "
     >
       <div className="flex justify-between items-center px-12 py-5 max-w-7xl mx-auto">
-
         {/* LOGO */}
         <div
           onClick={() => navigate("/dashboard")}
@@ -52,7 +50,6 @@ const Navbar = () => {
 
         {/* LINKS */}
         <div className="hidden md:flex gap-12 text-[15px] font-medium">
-
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-purple-400 transition"
@@ -60,11 +57,29 @@ const Navbar = () => {
             Dashboard
           </button>
 
+          {/* HIRER ORDERS */}
+          {user.activeRole === "HIRER" && (
+            <button
+              onClick={() => navigate("/order/:gigId")}
+              className="hover:text-purple-400 transition"
+            >
+              My Orders
+            </button>
+          )}
+
+          {/* FREELANCER ORDERS */}
+          {user.activeRole === "FREELANCER" && (
+            <button
+              onClick={() => navigate("/freelancer-orders")}
+              className="hover:text-purple-400 transition"
+            >
+              Orders
+            </button>
+          )}
         </div>
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-6">
-
           {/* USER NAME + ROLE */}
           <span className="text-sm text-gray-300">
             {user?.fullName} ({user?.activeRole})
@@ -95,7 +110,6 @@ const Navbar = () => {
           >
             Logout
           </button>
-
         </div>
       </div>
     </nav>

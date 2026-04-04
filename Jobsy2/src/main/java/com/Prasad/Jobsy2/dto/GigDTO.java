@@ -40,4 +40,7 @@ public class GigDTO {
     @JsonProperty(access = Access.READ_ONLY)
     private String freelancerProfileImage;
 
+    // ✅ ADD THIS (IMPORTANT)
+    @JsonProperty(access = Access.READ_ONLY)
+    private Long userId;
 }

@@ -7,6 +7,10 @@ import ProtectedRoute from './components/protectedRoutes';
 import FreelancerDashboard from './pages/FreelancerDashboard';
 import CreateGig from "./pages/CreateGig";
 import EditGig from "./pages/EditGig";
+import HirerDashboard from "./pages/HirerDashboard";
+import ViewGig from './pages/ViewGig';
+import HirerOrders from './pages/HirerOrders';
+import FreelancerOrders from './pages/FreelancerOrders';
 
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
@@ -24,17 +28,27 @@ const Root = () => {
 const DashboardRedirect = () => {
   const { user } = useContext(AppContext);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="pt-28 text-center text-gray-600">
+        Loading dashboard...
+      </div>
+    );
+  }
 
-  if (user.activeRole === "FREELANCER") {
+  if (user.activeRole?.toUpperCase() === "FREELANCER") {
     return <Navigate to="/freelancer_dashboard" replace />;
   }
 
-  if (user.activeRole === "CLIENT") {
-    return <div className="pt-28 px-10 text-white">Client Dashboard (Coming Soon)</div>;
+  if (user.activeRole?.toUpperCase() === "HIRER") {
+    return <Navigate to="/hirer-dashboard" replace />;
   }
 
-  return null;
+  return (
+    <div className="pt-28 text-center text-gray-600">
+      No role selected
+    </div>
+  );
 };
 
 const App = () => {
@@ -69,6 +83,15 @@ const App = () => {
 
             {/*Edit gig route */}
             <Route path="/edit-gig/:gigId" element={<EditGig />} />
+
+            {/*Hirer dashboard route */}
+            <Route path="/hirer-dashboard" element={<HirerDashboard />} />
+
+            <Route path="/gig/:id" element={<ViewGig />} />
+
+            <Route path="/order/:gigId" element={<HirerOrders />} />
+
+            <Route path="/freelancer-orders" element={<FreelancerOrders />} />
 
           </Route>
 

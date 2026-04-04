@@ -8,5 +8,7 @@ export const API_ENDPOINTS = {
   GIGS: "/gigs",                // create, update, delete
   MY_GIGS: "/gigs/my",          // active gigs
   MY_ALL_GIGS: "/gigs/my/all",  // active + inactive gigs
-  RESTORE_GIG: "/gigs/restore"  // restore endpoint
+  RESTORE_GIG: "/gigs/restore", // restore endpoint
+  ORDERS:"/orders",
+  PAYMENTS:"/payments"
 };

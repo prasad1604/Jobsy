@@ -10,10 +10,10 @@ const FreelancerDashboard = () => {
 
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [earnings, setEarnings] = useState(0); // ✅ ADDED
 
   const fetchGigs = async () => {
     try {
-      // fetch ALL gigs (active + inactive)
       const res = await axiosConfig.get(API_ENDPOINTS.MY_ALL_GIGS);
       setGigs(res.data);
     } catch (error) {
@@ -23,8 +23,19 @@ const FreelancerDashboard = () => {
     }
   };
 
+  // ✅ FETCH EARNINGS
+  const fetchEarnings = async () => {
+    try {
+      const res = await axiosConfig.get("/freelancer/profile");
+      setEarnings(res.data.totalEarnings || 0);
+    } catch (err) {
+      console.error("Error fetching earnings:", err);
+    }
+  };
+
   useEffect(() => {
     fetchGigs();
+    fetchEarnings(); // ✅ ADDED
   }, []);
 
   const handleDelete = async (gigId) => {
@@ -49,7 +60,17 @@ const FreelancerDashboard = () => {
     navigate(`/edit-gig/${gigId}`);
   };
 
-  if (!user || user.activeRole !== "FREELANCER") return null;
+  const handleWithdraw = () => {
+    alert("Withdraw coming soon 💸");
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-28 flex items-center justify-center text-gray-500">
+        Loading dashboard...
+      </div>
+    );
+  }
 
   const totalGigs = gigs.length;
   const activeGigs = gigs.filter(g => g.isActive).length;
@@ -95,9 +116,20 @@ const FreelancerDashboard = () => {
           <p className="text-gray-400 text-xs mt-1">0 reviews</p>
         </div>
 
+        {/* 💰 EARNINGS (ONLY THIS CARD MODIFIED) */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
           <h3 className="text-gray-500 text-sm">Total Earnings</h3>
-          <p className="text-3xl font-bold mt-2 text-purple-600">₹0</p>
+
+          <p className="text-3xl font-bold mt-2 text-purple-600">
+            ₹{earnings}
+          </p>
+
+          <button
+            onClick={handleWithdraw}
+            className="mt-3 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm"
+          >
+            Withdraw
+          </button>
         </div>
 
       </div>
